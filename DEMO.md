@@ -238,6 +238,8 @@ Known leftover: after you push the four new seeded bugs, `npm test` fails on tho
 
 Only the **create command** and **ticket id** change. Everything else is identical. Do not skip windows. Do not let Clearing run ingest. Do not merge.
 
+**Scene you are in (keep this in your head the whole run):** Harbor is a bank payments team. ACH origination (`POST /transfers`) and the audit trail (`GET /audit`) are already in production on protected `main`. A control gap is live. In a real bank you do **not** open an IDE and patch prod. You file a finding, a teammate triages blast radius, a human approves a change window, engineering remediates on a branch, independent review happens, a human merges, GRC attests later. Each click below is one of those roles. Practice 1–3 are three different findings; the roles do not change.
+
 ### Windows to have open before you start
 
 Open these five and leave them open. You will tab, not hunt.
@@ -267,6 +269,8 @@ Also keep SUB-8 and PR #1 bookmarked so you can show a finished loop without wai
 
 ### Before step 1 — prove the gap is still on `main`
 
+**Scenario:** Cloud agents are a contractor laptop that clones **production** (`main`), not your dirty working tree. If the finding is not on `main`, you are remediating a fantasy. Examiners care what is in prod.
+
 Cloud agents clone **GitHub `main`**, not your laptop. If the four bugs are only on this feature branch, ingest will “fix” nothing useful.
 
 1. In the terminal: `git fetch origin && git log origin/main -1 --oneline`
@@ -276,6 +280,8 @@ Cloud agents clone **GitHub `main`**, not your laptop. If the four bugs are only
 ---
 
 ### Step 0 — Decide which practice (30 seconds)
+
+**Scenario:** You are picking **one finding** for this change window. Banks do not bundle “while we’re in there” into a PCI ticket. One gap, one ticket, one PR. Closing this practice without merging is like stopping after CAB so the other findings stay in prod for the next drill.
 
 | Practice | Create command | Skip create if this ticket already exists | Bug you will talk about |
 | --- | --- | --- | --- |
@@ -291,6 +297,8 @@ Say out loud (practice this sentence): *“Plan starts in Linear, not in the IDE
 ---
 
 ### Step 1 — Create the Linear ticket (Plan)
+
+**Scenario:** GRC / InfoSec / Fraud Ops just found the gap. Work starts in the **tracker**, not in Cursor. The Linear issue is the system of record: owner, control, labels, “do not push main.” In a bank this is ServiceNow or Jira; we use Linear. Coding has not started. If an examiner asks “when did you know?”, this timestamp is the answer.
 
 **App:** Terminal only. Do not open Grok Bot yet.
 
@@ -346,6 +354,8 @@ This ticket came from npm run demo:practice-1.
 
 ### Step 2 — Open Grok Bot and triage (Triage)
 
+**Scenario:** Clearing is not an engineer. It is the **intake / control officer** on the payments desk (the Slack teammate who reads the finding and the repo). Its job is blast radius, which control, is it still on `main`, and “ask before anyone remediates.” It must not write production code. Mixing triage and patch is how you get a silent prod write with no CAB.
+
 **App: Grok Bot.** Not Cursor. Not Linear’s comment box. Not ChatGPT.
 
 1. Switch to the **Grok Bot** app.
@@ -389,6 +399,8 @@ Leave it in Backlog/Todo until ingest starts. After a PR exists, In Review — n
 
 ### Step 2b — Prove triage landed on Linear
 
+**Scenario:** The Linear comment is the **audit trail of triage**. If an examiner asks who classified this as high risk and why, this comment is the artifact. Status is still not Done. There is still no PR — design happened; build has not.
+
 **App: Linear.** Refresh the issue.
 
 1. You should see a new comment from Clearing: severity, control, evidence, recommended next step.
@@ -400,6 +412,8 @@ Leave it in Backlog/Todo until ingest starts. After a PR exists, In Review — n
 ---
 
 ### Step 3 — You approve out loud (change approval)
+
+**Scenario:** You are the **change owner / CAB chair**. In a bank an agent cannot approve its own work. Saying “go” is the change window. Clearing still does not run ingest — you keep the trigger in a human CLI so a bot cannot start remediating from a chatty plugin.
 
 Still **no ingest** until you say it.
 
@@ -417,6 +431,8 @@ Approved. Remediate this ticket only. I will run ingest from the Harbor CLI. Do 
 ---
 
 ### Step 4 — Ingest (Build, then Verify)
+
+**Scenario:** **Build** is a service-account engineer (SDK remediator) that clones prod, cuts a **new branch**, fixes **only this ticket**, and opens a PR as **cursor[bot]** — not your personal GitHub user. That is why you can later Approve (you are not the author). **Verify** is a *different* person: Bugbot hunts bugs; the CAB reviewer checks control, tests, Linear citation, runbook, and “not main.” One agent doing write + attest would look like self-certification. Linear goes **In Progress** when build starts.
 
 **App: Terminal** (same repo). **App: Cursor Web** (SDK filter) beside it.
 
@@ -469,6 +485,8 @@ If **branch is `main`**: the orchestrator should have aborted. If it did not, do
 
 ### Step 5 — GitHub PR (look, do not merge)
 
+**Scenario:** This PR is the **change ticket into production**. Branch protection is the bank’s change-management gate: PR required, your Approve required, no direct push to `main`. CAB’s PASS comment is evidence, not a GitHub approval. Linear **In Review** means “waiting on a human.” **Done** would mean GRC attested the control in prod — an agent must never click that. In practice you **Close without merging** so the other seeded findings stay live for the next drill. In a real change you would Merge after Approve; say that difference out loud.
+
 **App: GitHub.** Click the `pr` URL from the terminal, or https://github.com/subtub98/harbor-solutions/pulls
 
 1. Author must be **cursor[bot]**, not you. If it is you, you used the IDE or a personal clone — wrong story, close it.
@@ -502,6 +520,8 @@ and send. Wait. If it still never comments, that is a known limitation — CAB s
 
 ### Step 6 — Operate (optional; do this on one practice, required in the interview if they ask)
 
+**Scenario:** Code change is not the end of a control. Ops needs a runbook sentence they can follow at 2am, and GRC needs a **next attestation** (child ticket: quarterly PCI / limit review). That work stays In Review / Backlog — still not Done, still not a push to `main`. This is Operate, not a fifth product.
+
 Only after the PR exists. **App: Grok Bot**, same Clearing chat, or a new Clearing message:
 
 ```
@@ -518,38 +538,50 @@ Expect: a child issue in harbor, still not Done. You can also ask the remediator
 
 ### After each practice — reset for the next one
 
+**Scenario:** You did not ship. Prod still has the other findings. That is the drill, not a failed demo. Next practice is a **new change window** (new Clearing thread, new ticket). Re-filing the same finding creates duplicate GRC tickets — examiners hate that.
+
 1. Practice PR **Closed**, not merged.
 2. Linear ticket **In Review**, not Done.
 3. `npm test` still fails the **other** gaps (and this one too, because you did not merge).
 4. New Clearing **thread** for the next ticket.
 5. Do not re-create the same gap ticket.
 
-| Step | App | You do | SDLC |
-| --- | --- | --- | --- |
-| 0 | Terminal / Linear | Pick one gap; skip create if ticket exists | — |
-| 1 | Terminal, then Linear | `npm run demo:…` ; open the URL | Plan |
-| 2 | Grok Bot → Clearing | New chat; paste the 3-line triage block | Triage |
-| 2b | Linear | Confirm Clearing’s comment | Triage |
-| 3 | Grok Bot + mouth | “Approved. I will run ingest.” | Change approval |
-| 4 | Terminal + Cursor Web SDK filter | `npm run ingest -- --issue SUB-XX` | Build + Verify |
-| 5 | GitHub, then Linear | Ready for review, optional Approve, **Close** (no merge), In Review | Release (stopped) |
-| 6 | Grok Bot | Child attestation ticket | Operate |
+| Step | App | You do | SDLC | Scenario in one line |
+| --- | --- | --- | --- | --- |
+| 0 | Terminal / Linear | Pick one gap; skip create if ticket exists | — | One finding, one change window |
+| 1 | Terminal, then Linear | `npm run demo:…` ; open the URL | Plan | GRC files the finding before any IDE |
+| 2 | Grok Bot → Clearing | New chat; paste the 3-line triage block | Triage | Intake officer; no prod writes |
+| 2b | Linear | Confirm Clearing’s comment | Triage | Examiner-readable triage artifact |
+| 3 | Grok Bot + mouth | “Approved. I will run ingest.” | Change approval | You are CAB; agents do not self-approve |
+| 4 | Terminal + Cursor Web SDK filter | `npm run ingest -- --issue SUB-XX` | Build + Verify | Service-account engineer + independent review |
+| 5 | GitHub, then Linear | Ready for review, optional Approve, **Close** (no merge), In Review | Release (stopped) | Human would merge; drill does not, so other gaps stay live |
+| 6 | Grok Bot | Child attestation ticket | Operate | Next QSA date + runbook; still not Done |
 
 ---
 
 ## Practice 1 — No maximum ACH amount
 
-Run the click-by-click above. Only these details change.
+Run the click-by-click above. Use this script at each step.
 
-**The bug (say this):** `payments/src/limits.ts` has `MIN_CENTS` and no max. `submitTransfer` of `5_000_000_000` cents is accepted. Test name: `practice 1: ACH amount has a maximum of 100_000_000 cents`.
+**Scene:** Harbor ACH will accept a **$50,000,000** wire (`5_000_000_000` cents). `limits.ts` has a minimum (1 cent) and **no maximum**. This is **fraud / operational risk**, not PCI-DSS 10.2 (that family is about *who accessed what* on the audit log). Say that distinction; it shows you are not slapping PCI on every bug. Policy cap we want: **100_000_000 cents ($1,000,000)**.
 
-**Create:**
+**The failing test:** `practice 1: ACH amount has a maximum of 100_000_000 cents`
+
+### Step by step for this finding
+
+**Step 0 — Scene.** You are Fraud Ops. Overnight a test origination of fifty million dollars was accepted. You will file one finding, not “also fix audit while we’re here.”
+
+**Step 1 — Plan.** If **SUB-9** already exists, do **not** create another ticket (duplicate findings). Open SUB-9. If you need a new one:
 
 ```bash
 npm run demo:practice-1
 ```
 
-**If SUB-9 already exists** (it does from the first seed): **do not run create again.** Skip to Linear, copy SUB-9’s id, and use this as the Clearing paste:
+**Ticket title:** `No maximum ACH amount — reject over 100_000_000 cents`  
+**Labels:** `sdlc:control-gap`, `Bug`, `risk:high` — **no** `control:pci-10.2`.  
+**Say:** *“This is an origination limit. GRC filed it in harbor before anyone touched the IDE.”*
+
+**Step 2 — Triage (Clearing, new chat).** Paste SUB-9’s 3-line block (or the printed one).
 
 ```
 Triage Linear SUB-9 in project harbor against GitHub subtub98/harbor-solutions.
@@ -557,51 +589,75 @@ Comment on SUB-9 with blast radius, control, and recommended next step.
 Do not change code, do not merge, do not set Done. Ask me before anyone remediates.
 ```
 
-Then ingest:
+**Clearing should say:** any caller who can hit `POST /transfers` can originate an unlimited ACH; cap should be $1M; next step is you approve ingest.  
+**Say:** *“Blast radius is the whole origination API, not a single customer. Clearing is not allowed to patch limits.ts.”*
+
+**Step 2b — Linear.** Comment is on SUB-9. Still no PR. Still not Done.  
+**Say:** *“That’s the triage artifact. An examiner can read it later.”*
+
+**Step 3 — Approve.**  
+**Say:** *“Change window approved for the $1M ceiling only. I will run ingest. Do not merge.”*
+
+**Step 4 — Build + Verify.**
 
 ```bash
 npm run ingest -- --issue SUB-9
 ```
 
-**Ticket title to expect:** `No maximum ACH amount — reject over 100_000_000 cents`  
-**Labels:** `sdlc:control-gap`, `Bug`, `risk:high` (no `control:pci-10.2` — this is a fraud/ops limit, not the audit control).
+**Say while it streams:** *“Remediator clones main, new branch, cursor[bot] PR. CAB is a second agent so we are not self-attesting the limit.”*  
+**Expect files:** `payments/src/limits.ts` (reject above 100_000_000), maybe `transfer.ts` / `RUNBOOK.md`. Must not require fixing rejected-audit, idempotency, or audit-read.
 
-**Clearing should mention:** unlimited wires / fraud / ops cap of $1,000,000 (100_000_000 cents). Recommended next step = you run ingest after approval.
+**Step 5 — Release (stop).** Ready for review, optional Approve, **Close — do not merge.**  
+**Say:** *“In prod I would merge after Approve. For the drill I leave main without a max so the other findings stay live.”*
 
-**PR files to expect:** `payments/src/limits.ts` (reject above 100_000_000), maybe `transfer.ts` if reject lives there, maybe `RUNBOOK.md`. Must **not** require fixing audit-read / idempotency / rejected-audit.
-
-**When you Close the PR:** `main` still has no max. That is correct. You proved the loop.
+**Step 6 — Operate (optional).** Child ticket: quarterly review of the $1M ACH cap. Runbook: “Reject amountCents above 100_000_000.” Not Done.
 
 ---
 
 ## Practice 2 — Rejected transfers skip the audit log
 
-Same click-by-click. Do this **after** practice 1 is closed unmerged.
+Same click-by-click. New Clearing thread. Do this **after** practice 1 is closed unmerged.
 
-**The bug (say this):** `reject()` in `payments/src/transfer.ts` returns without `recordTransfer`. Same-account, missing fields, and invalid amount never hit the audit log. PCI-DSS 10.2 is completeness of attempts, not only successes. Test: `practice 2: rejected transfers are written to the audit log`.
+**Scene:** A fraudster (or a buggy client) posts **same-account** ACH, missing fields, or invalid amount. Harbor returns `rejected` and writes **nothing** to the audit log — `reject()` never calls `recordTransfer`. PCI-DSS **10.2** is completeness of *attempts*, not only successes. If you only log accepted wires, the examiner cannot see the attack. This **is** a PCI ticket (`control:pci-10.2`).
 
-**Create:**
+**The failing test:** `practice 2: rejected transfers are written to the audit log`
+
+### Step by step for this finding
+
+**Step 0 — Scene.** You are GRC. The QSA asked for rejected-origination evidence. Harbor has none.
+
+**Step 1 — Plan.** Create unless this exact title already exists (do not reuse SUB-8 or SUB-9).
 
 ```bash
 npm run demo:practice-2
 ```
 
-**Always run create** unless you already see a harbor ticket with this exact title. Then paste Clearing’s 3-line block with the **new** id from the terminal (not SUB-8, not SUB-9).
+**Ticket title:** `PCI-DSS 10.2: rejected ACH transfers are not audited`  
+**Labels:** `sdlc:control-gap`, `control:pci-10.2`, `Bug`, `risk:high`.  
+**Say:** *“PCI 10.2 — log access to sensitive data includes failed attempts. Finding is in Linear before code.”*
 
-**Ingest** (replace with the printed id):
+**Step 2 — Triage (new Clearing chat, new id).** Paste the printed 3-line block with **this** SUB-XX.  
+**Clearing should say:** same-account / validation failures are invisible to audit; completeness gap; you approve ingest.  
+**Say:** *“If we only log successes, same-account fraud probes never show up. Clearing comments; it does not edit transfer.ts.”*
+
+**Step 2b — Linear.** PCI comment on the **new** ticket. No PR yet.
+
+**Step 3 — Approve.**  
+**Say:** *“Approved to record rejected rows with a reason. This ticket only — do not also implement idempotency or audit-read.”*
+
+**Step 4 — Build + Verify.**
 
 ```bash
 npm run ingest -- --issue SUB-XX
 ```
 
-**Ticket title:** `PCI-DSS 10.2: rejected ACH transfers are not audited`  
-**Labels:** `sdlc:control-gap`, `control:pci-10.2`, `Bug`, `risk:high`.
+**Say while it streams:** *“Build is remediator on a branch. Verify is Bugbot plus CAB on 10.2 completeness. Other seeded tests may stay red; that is allowed.”*  
+**Expect files:** `payments/src/transfer.ts` (rejected → `recordTransfer` + reason), maybe `audit.ts` / types / `RUNBOOK.md`.
 
-**Grok Bot:** new Clearing thread. If you paste into the practice-1 thread, it will mix SUB-9 and this ticket.
+**Step 5 — Release (stop).** Close without merging.  
+**Say:** *“CAB packet is on Linear In Review. I am not merging so practice 3 and the interview gap stay on main.”*
 
-**PR files to expect:** `payments/src/transfer.ts` (rejected rows get `recordTransfer` / status rejected + reason), maybe `audit.ts` / types / `RUNBOOK.md`. Other gap tests may still fail — that is allowed.
-
-**Close without merging.**
+**Step 6 — Operate (optional).** Child ticket: next quarterly PCI attestation of rejected-attempt logging. Runbook: “Rejected originations are audit rows.”
 
 ---
 
@@ -609,22 +665,46 @@ npm run ingest -- --issue SUB-XX
 
 Same click-by-click. New Clearing thread. New ticket.
 
-**The bug (say this):** `idempotencyKey` is on the request type and ignored. Two `submitTransfer` calls with `idempotencyKey: "wire-practice-3"` mint two ids. Duplicate ACH originations. Test: `practice 3: same idempotencyKey returns the same transfer id`.
+**Scene:** Payroll (or any ACH) is submitted twice because the HTTP client retried. The API accepts `idempotencyKey` and **ignores it**, so Harbor mints **two** transfer ids and would originate twice. That is **duplicate origination / NACHA ops risk**, not PCI 10.2. Same shape as a real fintech incident (network blip → double wire). Do not “helpfully” log audit reads in this PR — that is the interview finding.
 
-**Create:**
+**The failing test:** `practice 3: same idempotencyKey returns the same transfer id`
+
+### Step by step for this finding
+
+**Step 0 — Scene.** You are Payments Ops. Two accepted transfers for one `wire-practice-3` key. Downstream would have paid twice.
+
+**Step 1 — Plan.**
 
 ```bash
 npm run demo:practice-3
 ```
 
-**Ingest** with the new id from the terminal.
-
 **Ticket title:** `Duplicate ACH originations — honor idempotencyKey`  
-**Labels:** `sdlc:control-gap`, `Bug`, `risk:high`.
+**Labels:** `sdlc:control-gap`, `Bug`, `risk:high` — not PCI unless Clearing over-tags; the body is payments integrity.  
+**Say:** *“Idempotency is a control on origination. Filed in harbor first.”*
 
-**PR files to expect:** `payments/src/transfer.ts` (store key → first transfer id), maybe `RUNBOOK.md`. Must not silently implement the interview audit-read gap.
+**Step 2 — Triage (new Clearing chat).** Paste the new 3-line block.  
+**Clearing should say:** retries create duplicate ACH; honor the key; same id on the second submit; you approve ingest.  
+**Say:** *“This is the double-wire incident. Blast radius is every client that retries. Clearing does not patch transfer.ts.”*
 
-**Close without merging.** Leave the **interview** test failing on `main`.
+**Step 2b — Linear.** Triage comment on the **new** id. No PR.
+
+**Step 3 — Approve.**  
+**Say:** *“Approved to honor idempotencyKey only. Do not implement GET /audit reader logging in this change window.”*
+
+**Step 4 — Build + Verify.**
+
+```bash
+npm run ingest -- --issue SUB-XX
+```
+
+**Say while it streams:** *“Remediator should store key → first transfer id. CAB checks this ticket, not the interview gap.”*  
+**Expect files:** `payments/src/transfer.ts`, maybe `RUNBOOK.md`. **Must not** implement audit-read.
+
+**Step 5 — Release (stop).** Close without merging.  
+**Say:** *“Interview gap (audit reads) must still fail on main. That is why I am not merging.”*
+
+**Step 6 — Operate (optional).** Child ticket: add idempotency to the origination runbook / next ops review. Still no push to `main`.
 
 ---
 
@@ -649,7 +729,20 @@ npm run demo:practice-3
 
 Follow the **click-by-click** above. Same apps, same pastes, same “I run ingest / never Done / never merge.” Only the command and the bug change. Do not skip Grok Bot because you are nervous about time — start ingest the moment you say “approved,” then keep talking over SUB-8 / PR #1 while it streams.
 
-**Bug (leave failing until the live session):** `listAuditLog(actor)` discards the reader. PCI-DSS 10.2 also logs who accessed the audit trail. Test: `demo: reading the audit log records the reader`.
+**Scene:** An ops officer opens `GET /audit?actor=` to review wires. PCI-DSS **10.2** also requires logging **who read the audit trail**. `listAuditLog(actor)` discards the actor — the read is invisible. Leave this failing on `main` until the live session. SUB-8 / PR #1 already closed the *amount-on-audit* cousin; this is the *reader* cousin.
+
+**The failing test:** `demo: reading the audit log records the reader`
+
+**At each step, say:**
+
+| Step | Scenario line |
+| --- | --- |
+| Plan (`demo:interview`) | *“QSA: who accessed the audit log? Harbor does not know. Finding is in Linear first.”* |
+| Triage (new Clearing chat) | *“Blast radius is every audit read. Clearing comments; it does not patch listAuditLog.”* |
+| Approve | *“Change window for reader logging only.”* |
+| Ingest | *“Same remediator + CAB split as SUB-8. Start it now; talk over PR #1 while it streams.”* |
+| PR / In Review | *“cursor[bot], not main. Merge later, by me. Linear stays In Review.”* |
+| Extend | *“Child quarterly attestation + one RUNBOOK sentence. Still no push to main.”* |
 
 **Create in the room (not the night before):**
 

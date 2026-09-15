@@ -27,9 +27,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ github.ref_name }}
-          OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.repository }}
-          TITLE: ${{ github.event.head_commit.message }}
+          SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
@@ -41,7 +40,7 @@ jobs:
           existing="$(
             gh pr list \
               --repo "$REPO" \
-              --head "$OWNER:$BRANCH" \
+              --head "$BRANCH" \
               --base main \
               --state open \
               --json number \
@@ -53,17 +52,22 @@ jobs:
             exit 0
           fi
 
-          pr_title="$(printf '%s' "$TITLE" | awk 'NR==1 { print; exit }')"
+          pr_title="$(
+            gh api "repos/$REPO/commits/$SHA" --jq .commit.message |
+              awk 'NR==1 { print; exit }'
+          )"
           if [ -z "$pr_title" ]; then
             pr_title="$BRANCH"
           fi
 
-          gh pr create \
-            --repo "$REPO" \
-            --base main \
-            --head "$BRANCH" \
-            --title "$pr_title" \
-            --body "$(cat <<EOF
+          set +e
+          out="$(
+            gh pr create \
+              --repo "$REPO" \
+              --base main \
+              --head "$BRANCH" \
+              --title "$pr_title" \
+              --body "$(cat <<EOF
           ## Summary
           Auto-opened because \`$BRANCH\` was pushed. Harbor never pushes to \`main\`.
 
@@ -73,4 +77,16 @@ jobs:
           - Remediator branches (\`cursor/fix-*\`) are skipped; those PRs come from the SDK remediator.
 
           EOF
+          )" 2>&1
           )"
+          status=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ "$status" -eq 0 ]; then
+            exit 0
+          fi
+          if printf '%s' "$out" | grep -qi 'already exists'; then
+            echo "Treating existing PR as success"
+            exit 0
+          fi
+          exit "$status"

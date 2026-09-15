@@ -8,6 +8,6 @@
 
 `GET /audit` returns the in-memory transfer log. **PCI-DSS 10.2** requires each record to include actor, accounts, timestamp, and **amount**.
 
-## Known control gap (main)
+## PCI-DSS 10.2 control (SUB-8)
 
-`payments/src/audit.ts` currently drops `amountCents`. Do not hotfix on `main`. Open a branch and a PR. Linear project: **harbor**. Label: `control:pci-10.2`.
+`payments/src/audit.ts` includes `amountCents` on every audit record. Remediation branch: `cursor/fix-sub-8-pci-10-2-b0cd`. Linear: **SUB-8**. Label: `control:pci-10.2`.

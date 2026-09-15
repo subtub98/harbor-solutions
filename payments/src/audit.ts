@@ -1,9 +1,8 @@
 import type { AuditRecord } from "./types.ts";
 
 /**
- * PCI-DSS 10.2 requires audit records for access to sensitive financial data.
- * CONTROL GAP (seeded on main): amountCents is dropped. Harbor InfoSec tracks
- * this as control:pci-10.2. Remediate on a branch + PR — never push to main.
+ * PCI-DSS 10.2 requires audit records for access to sensitive financial data,
+ * including amount. Harbor InfoSec tracks this as control:pci-10.2.
  */
 export function recordTransfer(input: {
   id: string;
@@ -19,6 +18,6 @@ export function recordTransfer(input: {
     actor: input.actor,
     fromAccount: input.fromAccount,
     toAccount: input.toAccount,
-    // amountCents intentionally omitted — this is the control gap
+    amountCents: input.amountCents,
   };
 }

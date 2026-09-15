@@ -1,0 +1,10 @@
+---
+description: Harbor change control — agents never ship to main
+alwaysApply: true
+---
+
+Never push, merge, or commit to `main`. Always create a new branch and open a pull request into `main`.
+
+Never set a Linear issue to Done. When a PR exists, move it to **In Review**.
+
+Harbor Linear project is `harbor` (team Subbu Iyer, key SUB). GitHub repo is `subtub98/harbor-solutions`.

@@ -1,0 +1,17 @@
+{
+  "name": "@harbor/orchestrator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "tsx src/run.ts --demo",
+    "ingest": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@cursor/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

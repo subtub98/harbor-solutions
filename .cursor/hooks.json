@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/block-push-main.mjs",
+        "timeout": 10,
+        "matcher": "git\\s+"
+      }
+    ]
+  }
+}

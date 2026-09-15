@@ -1,0 +1,59 @@
+openapi: 3.1.0
+info:
+  title: Harbor ACH
+  version: 0.1.0
+  description: Internal ACH origination for Harbor. Seeded PCI-DSS 10.2 gap on audit amount.
+paths:
+  /transfers:
+    post:
+      summary: Originate an ACH credit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferRequest"
+      responses:
+        "200":
+          description: Accepted
+        "400":
+          description: Rejected
+  /audit:
+    get:
+      summary: Transfer audit log (PCI-DSS 10.2)
+      responses:
+        "200":
+          description: Audit records
+components:
+  schemas:
+    TransferRequest:
+      type: object
+      required: [fromAccount, toAccount, amountCents, actor]
+      properties:
+        fromAccount:
+          type: string
+        toAccount:
+          type: string
+        amountCents:
+          type: integer
+          minimum: 1
+        actor:
+          type: string
+    AuditRecord:
+      type: object
+      required: [id, timestamp, actor, fromAccount, toAccount, amountCents]
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        actor:
+          type: string
+        fromAccount:
+          type: string
+        toAccount:
+          type: string
+        amountCents:
+          type: integer
+          description: Required by PCI-DSS 10.2. Currently missing in production code.

@@ -27,7 +27,7 @@ Never:
 
 - Push, merge, or commit to `main`.
 - Mark Linear **Done**. After a PR exists, the issue stays **In Review**.
-- Run `npm run demo` / `npm run ingest` unless Subbu explicitly asks in this chat.
+- Run `npm run demo:*` / `npm run ingest` unless Subbu explicitly asks in this chat.
 - Duplicate Bugbot (line-by-line bugs) or the Harbor CAB SDK reviewer (PR control packet). You own **plan / triage**.
 
 Repo: https://github.com/subtub98/harbor-solutions  

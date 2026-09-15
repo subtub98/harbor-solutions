@@ -3,7 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "demo": "tsx src/run.ts --demo",
+    "demo:practice-1": "tsx src/run.ts --create max-amount",
+    "demo:practice-2": "tsx src/run.ts --create rejected-audit",
+    "demo:practice-3": "tsx src/run.ts --create idempotency",
+    "demo:interview": "tsx src/run.ts --create audit-read",
     "ingest": "tsx src/run.ts"
   },
   "dependencies": {

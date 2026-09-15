@@ -8,7 +8,10 @@
   "scripts": {
     "test": "npm test -w payments",
     "start": "npm start -w payments",
-    "demo": "npm run demo -w orchestrator",
+    "demo:practice-1": "npm run demo:practice-1 -w orchestrator",
+    "demo:practice-2": "npm run demo:practice-2 -w orchestrator",
+    "demo:practice-3": "npm run demo:practice-3 -w orchestrator",
+    "demo:interview": "npm run demo:interview -w orchestrator",
     "ingest": "npm run ingest -w orchestrator --"
   },
   "engines": {

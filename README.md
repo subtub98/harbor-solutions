@@ -22,18 +22,25 @@ Cloud agents started from the SDK are hidden in the default agent list. In Curso
 
 ```bash
 npm install
-npm test          # currently fails: seeded PCI 10.2 gap on main
-npm run demo      # create Linear ticket in harbor + remediate + CAB review
-npm run ingest -- --issue SUB-12
+npm test                       # four seeded gaps fail on purpose
+npm run demo:practice-1        # create Linear ticket only (max amount)
+npm run demo:practice-2        # create Linear ticket only (rejected audit)
+npm run demo:practice-3        # create Linear ticket only (idempotency)
+npm run demo:interview         # create Linear ticket only (audit-read)
+npm run ingest -- --issue SUB-XX
 ```
 
-`npm run demo` will:
+Each `demo:*` command files the matching Linear issue on **harbor** and prints a Clearing paste plus the ingest command. It does **not** start cloud agents.
 
-1. File a Linear issue on **harbor** (`PCI-DSS 10.2`, labels `sdlc:control-gap`, `control:pci-10.2`).
-2. Launch a **cloud remediator** with `workOnCurrentBranch: false` and `autoCreatePR: true`.
-3. Abort if the agent reports branch `main`.
-4. Launch a **cloud reviewer** attached to the PR (`prUrl`). Comment only; no second PR.
-5. Move Linear to **In Review**. Bugbot comments on the GitHub PR on its own.
+`npm run ingest -- --issue SUB-XX` then:
+
+1. Loads that ticket and sets Linear **In Progress**.
+2. Launches a **cloud remediator** with `workOnCurrentBranch: false` and `autoCreatePR: true`.
+3. Aborts if the agent reports branch `main`.
+4. Launches a **cloud reviewer** attached to the PR (`prUrl`). Comment only; no second PR.
+5. Moves Linear to **In Review**. Bugbot comments on the GitHub PR on its own.
+
+Step-by-step SDLC mapping: `DEMO.md`.
 
 ## Layout
 

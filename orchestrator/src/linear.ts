@@ -1,4 +1,5 @@
 import { config, required } from "./config.ts";
+import { GAPS, type GapId } from "./tickets.ts";
 
 type GraphQlResponse<T> = {
   data?: T;
@@ -79,13 +80,9 @@ async function stateId(name: string): Promise<string> {
   return match.id;
 }
 
-export async function createControlGapIssue(): Promise<LinearIssue> {
-  const labels = await labelIdsByName([
-    "sdlc:control-gap",
-    "control:pci-10.2",
-    "Bug",
-    "risk:high",
-  ]);
+export async function createGapIssue(gapId: GapId): Promise<LinearIssue> {
+  const gap = GAPS[gapId];
+  const labels = await labelIdsByName(gap.labels);
   const data = await linearGql<{
     issueCreate: { success: boolean; issue: LinearIssue | null };
   }>(
@@ -96,31 +93,20 @@ export async function createControlGapIssue(): Promise<LinearIssue> {
       input: {
         teamId: config.linearTeamId,
         projectId: config.linearProjectId,
-        title: "PCI-DSS 10.2: ACH transfers omit amount from the audit log",
+        title: gap.title,
         labelIds: labels,
-        description: [
-          `[repo=subtub98/harbor-solutions]`,
-          ``,
-          `## Control`,
-          `PCI-DSS 10.2 — record access to sensitive financial data, including **amount**.`,
-          ``,
-          `## Evidence`,
-          `\`payments/src/audit.ts\` drops \`amountCents\` when writing the audit record.`,
-          `\`payments/test/control-gap.test.ts\` fails on main for this reason.`,
-          ``,
-          `## Policy`,
-          `- Do **not** push or merge to \`main\`.`,
-          `- Open a new branch and a pull request.`,
-          `- Leave this issue **In Review** (never Done) when the PR exists.`,
-          `- Bugbot will review the PR automatically. A Harbor review agent will post a CAB comment.`,
-        ].join("\n"),
+        description: gap.description,
       },
     },
   );
   if (!data.issueCreate.success || !data.issueCreate.issue) {
-    throw new Error("Failed to create Linear issue in project harbor");
+    throw new Error(`Failed to create Linear issue for ${gapId} in project harbor`);
   }
   return data.issueCreate.issue;
+}
+
+export async function createControlGapIssue(): Promise<LinearIssue> {
+  return createGapIssue("max-amount");
 }
 
 export async function setIssueState(issueId: string, stateName: string): Promise<void> {

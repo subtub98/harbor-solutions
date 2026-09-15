@@ -11,12 +11,12 @@
 ## Closed
 
 - **SUB-8 / PCI-DSS 10.2 amount:** `payments/src/audit.ts` includes `amountCents`. PR #1.
+- **SUB-9 / maximum ACH amount:** `payments/src/limits.ts` rejects `amountCents` above 100_000_000 ($1,000,000).
 
 ## Open control gaps (seeded on purpose)
 
 Do not hotfix on `main`. One Linear ticket, one branch, one PR per gap.
 
-1. **No maximum ACH amount** — `payments/src/limits.ts` (practice 1). Ceiling should be 100_000_000 cents.
-2. **Rejected transfers skip the audit log** — `payments/src/transfer.ts` (practice 2).
-3. **Idempotency key is ignored** — `submitTransfer` (practice 3). Same key must return the same id.
-4. **Audit reads are not logged** — `listAuditLog` (interview demo). PCI-DSS 10.2 access to audit trails.
+1. **Rejected transfers skip the audit log** — `payments/src/transfer.ts` (practice 2).
+2. **Idempotency key is ignored** — `submitTransfer` (practice 3). Same key must return the same id.
+3. **Audit reads are not logged** — `listAuditLog` (interview demo). PCI-DSS 10.2 access to audit trails.

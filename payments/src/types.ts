@@ -17,6 +17,6 @@ export type AuditRecord = {
   actor: string;
   fromAccount: string;
   toAccount: string;
-  /** Required by PCI-DSS 10.2. Seeded gap: omitted on main. */
-  amountCents?: number;
+  /** Required by PCI-DSS 10.2. */
+  amountCents: number;
 };

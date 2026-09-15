@@ -377,3 +377,71 @@ If ingest is slow, start it the moment Clearing is done asking, and keep SUB-8 /
 - PR #1: https://github.com/subtub98/harbor-solutions/pull/1
 - Repo: https://github.com/subtub98/harbor-solutions
 - Clearing prompt: `grok-bot/CLEARING.md`
+
+---
+
+## During the live session — come prepared to
+
+These are the five things the interview scores. Say the Harbor version of each, then click.
+
+### Explain the problem you chose and why it matters in an enterprise context
+
+**Problem:** In a bank, a PCI / SOX control gap is not a GitHub issue. It is a finding. It has an owner, evidence, a change window, and a human who attests it closed. Native “assign to Cursor” skips that. An agent that pushes `main` would fail an audit.
+
+**Why Harbor:** Tiny ACH API (`POST /transfers`, `GET /audit`) so the code is simple. The product is the **SDLC loop**: Linear ticket → Clearing triage → SDK remediator on a new branch → PR as cursor[bot] → Bugbot + CAB review → **you** merge. Linear stays **In Review**, never Done by an agent.
+
+**Enterprise mapping:** GRC files the finding (Plan). A teammate triages (Clearing). Engineering remediates off `main`. Independent review (Bugbot bugs, CAB controls). Change advisory / you release. Operate is the runbook + attestation child ticket.
+
+### Walk through your working prototype — demo it live, not via slides
+
+Do not present slides. Click this loop:
+
+1. Linear project **harbor** + SUB-8 + [PR #1](https://github.com/subtub98/harbor-solutions/pull/1) (already closed: amount on the audit log).
+2. `npm run demo:interview` — ticket appears. That is Plan, live.
+3. Paste the printed prompt into **Clearing**. That is Triage, live.
+4. `npm run ingest -- --issue SUB-XX`. Cursor Web → Filter → Source → SDK. That is Build + Verify, live.
+5. New PR from cursor[bot], Linear **In Review**. You do not merge in the room unless they ask.
+
+Three practice commands (`demo:practice-1` … `3`) exist so you already did this once. The interview gap is audit-log **reads** not recorded.
+
+### Discuss key design decisions and trade-offs
+
+| Decision | Trade-off |
+| --- | --- |
+| **SDK orchestrator**, not Linear “assign to Cursor” | More moving parts. Policy, retries, and audit live in **our** code, which is the exercise. |
+| **CLI trigger**, not a Linear webhook | A missed webhook cannot kill a 20-minute session. Real product would add the webhook later. |
+| **Two cloud agents** (remediator + CAB) plus **Bugbot** | Roles stay separate: write code / review controls / hunt bugs. One agent doing all three would look like self-attestation. |
+| **Clearing is Grok Bot**, not an SDK coder | Intake can read Linear + GitHub without touching `main`. Mixing triage and patch is how you get silent prod writes. |
+| **`workOnCurrentBranch: false` + hook + branch protection** | Three layers against `main`. Redundant on purpose. Banks want defense in depth. |
+| **Never Linear Done** | Looks unfinished. Closing Done is a human GRC attestation, not an agent job. |
+| **Four small gaps, one workflow** | Not a core banking platform. Graded on the loop, not the ledger. |
+| **cursor[bot] as PR author** | You can Approve (you cannot Approve your own PR). Merge is still you. |
+
+### Highlight limitations and how you would evolve the solution
+
+**Limitations (say these):**
+
+- Trigger is a CLI, not a Linear webhook.
+- First clone failed until GitHub `main` existed.
+- Bugbot may not comment before merge; CAB still did on PR #1.
+- Harbor ACH is in-memory, not a real ledger.
+- `npm test` stays red on every still-open seeded gap; a PR may leave the others failing.
+- You cannot Approve a PR you authored; agent PRs are cursor[bot] so you can Approve those.
+
+**How we would evolve:**
+
+- Linear webhook (or Cursor automation) starts ingest instead of the terminal.
+- Persist audit to a real store; add amount, rejects, idempotency, and audit-read as one control pack.
+- CAB as a required GitHub check, not only a comment.
+- Promotion path: In Review → human Done with attached evidence, still never by an agent.
+- Same orchestrator reused for other control families (SOX change, access recertification), not more ACH features.
+
+### Extend a part of your prototype based on a prompt from the interviewers
+
+Planted live-extend (do this if they ask, or offer it at minute 18):
+
+- Child Linear ticket: **quarterly PCI attestation** for the control just closed. Do not set Done.
+- One new sentence in `payments/RUNBOOK.md` on that control.
+- Still **no push to `main`**. New branch / PR only.
+
+If they ask something else, keep the same policy: ticket first (or comment on the open ticket), branch off `main`, PR, Linear In Review, you merge later. Do not start a fifth product.

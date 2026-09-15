@@ -1,0 +1,92 @@
+name: Open pull request
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+concurrency:
+  group: open-pr-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    name: Open PR into main
+    if: >
+      github.ref_type == 'branch' &&
+      github.ref_name != 'main' &&
+      github.actor != 'cursor[bot]' &&
+      !startsWith(github.ref_name, 'cursor/fix-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create pull request if none is open
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [ "$BRANCH" = "main" ]; then
+            echo "Harbor policy: never open a PR from main"
+            exit 0
+          fi
+
+          existing="$(
+            gh pr list \
+              --repo "$REPO" \
+              --head "$BRANCH" \
+              --base main \
+              --state open \
+              --json number \
+              --jq '.[0].number // empty'
+          )"
+
+          if [ -n "$existing" ]; then
+            echo "Open PR #$existing already exists for $BRANCH"
+            exit 0
+          fi
+
+          pr_title="$(
+            gh api "repos/$REPO/commits/$SHA" --jq .commit.message |
+              awk 'NR==1 { print; exit }'
+          )"
+          if [ -z "$pr_title" ]; then
+            pr_title="$BRANCH"
+          fi
+
+          set +e
+          out="$(
+            gh pr create \
+              --repo "$REPO" \
+              --base main \
+              --head "$BRANCH" \
+              --title "$pr_title" \
+              --body "$(cat <<EOF
+          ## Summary
+          Auto-opened because \`$BRANCH\` was pushed. Harbor never pushes to \`main\`.
+
+          ## Policy
+          - Human reviews and merges.
+          - Do not mark Linear Done from this workflow.
+          - Remediator branches (\`cursor/fix-*\`) are skipped; those PRs come from the SDK remediator.
+
+          EOF
+          )" 2>&1
+          )"
+          status=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ "$status" -eq 0 ]; then
+            exit 0
+          fi
+          if printf '%s' "$out" | grep -qi 'already exists'; then
+            echo "Treating existing PR as success"
+            exit 0
+          fi
+          exit "$status"

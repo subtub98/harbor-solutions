@@ -12,7 +12,7 @@ Cursor SDK prototype: PCI control-gap remediation on a tiny ACH service. Agents 
 | Linear | Workspace **Subbu Iyer**, project **[harbor](https://linear.app/subbu-iyer/project/harbor-3e674a0b312a)**, team key `SUB` | Connected. Labels `sdlc:control-gap` and `control:pci-10.2` exist |
 | Linear API key | Linear → Settings → Security & access → API → `.env` as `LINEAR_API_KEY` | You must add |
 | Protect `main` | GitHub repo → Settings → Branches → require PR, no direct push | Recommended |
-| Grok Bot (optional live layer) | Grok Bot plugins: GitHub + Linear. Standing job: triage Harbor tickets, never merge | Optional for the interview |
+| Grok Bot | App: create **Clearing**. Plugins: Linear + GitHub. Prompt in `grok-bot/CLEARING.md` | Do this now |
 
 Copy `.env.example` to `.env`. Do not commit `.env`.
 

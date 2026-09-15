@@ -9,7 +9,7 @@
     "test": "npm test -w payments",
     "start": "npm start -w payments",
     "demo": "npm run demo -w orchestrator",
-    "ingest": "npm run ingest -w orchestrator"
+    "ingest": "npm run ingest -w orchestrator --"
   },
   "engines": {
     "node": ">=22"

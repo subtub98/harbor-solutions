@@ -139,16 +139,16 @@ ${issue.description ?? "(no description)"}
 
 Hard policy:
 - NEVER checkout, commit to, merge, or git push main.
-- Create a NEW branch (suggested: fix/${issue.identifier.toLowerCase()}-pci-10-2).
+- Create a NEW branch (suggested: fix/${issue.identifier.toLowerCase()}).
 - Open a pull request into main. Do not merge it.
 - Do not mark the Linear issue Done. In Review only.
 
 Work:
-1. The seeded gap is in payments/src/audit.ts — recordTransfer drops amountCents (PCI-DSS 10.2).
-2. Include amountCents on the audit record. Keep the rest of the ACH API stable.
-3. Make payments/test/control-gap.test.ts pass. Run npm test -w payments.
-4. Update payments/RUNBOOK.md so operators know the control is closed on this branch.
-5. PR title and body must cite ${issue.identifier} and PCI-DSS 10.2.
+1. Fix ONLY the control gap described in this Linear issue. Do not "clean up" unrelated seeded gaps.
+2. Make the matching test in payments/test/control-gap.test.ts pass. Run npm test -w payments.
+3. Unrelated failing control-gap tests may still fail — that is expected. Do not close every gap in one PR.
+4. Update payments/RUNBOOK.md for this control only.
+5. PR title and body must cite ${issue.identifier}.
 6. If Linear MCP is available, comment the PR URL on the issue. Still do not set Done.
 
 Return the branch name and PR URL at the end.`;
@@ -167,9 +167,9 @@ Hard policy:
 - Do not approve merge. Do not close Linear as Done.
 
 Review for:
-1. PCI-DSS 10.2: audit records include amountCents, actor, accounts, timestamp.
-2. The failing control-gap test now passes, and no secrets were added.
-3. PR cites ${issue.identifier}. RUNBOOK.md matches the code.
+1. The PR actually closes the control named in ${issue.identifier} (${issue.title}).
+2. The matching control-gap test now passes. Unrelated seeded gaps may still fail — that is OK.
+3. No secrets were added. PR cites ${issue.identifier}. RUNBOOK.md matches this change.
 4. Diff does not target main directly.
 
 Post a PR review comment titled "Harbor CAB review" with PASS or BLOCK, then a short Linear comment summarizing the same. Mention that Bugbot is the automated bug/security reviewer on this PR and you are the SDLC/control reviewer.

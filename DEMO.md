@@ -167,13 +167,14 @@ We also pushed the initial tree so `main` existed. Cloud agents cannot clone a r
 ### Automations (the mechanical ones)
 
 1. **Orchestrator** — your Node script. Linear GraphQL + two SDK cloud agents in sequence.
-2. **Linear MCP** on those cloud agents — they can comment on tickets.
-3. **`autoCreatePR`** — remediator opens the GitHub PR.
-4. **Bugbot** — PR review automation + `.cursor/BUGBOT.md`.
-5. **Hooks** — cloud agents load `.cursor/hooks.json`. Any `git` command that tries to push, check out, or merge `main` is denied.
-6. **Cursor rule** `harbor-change-control.mdc` — same policy in the prompt layer.
-7. **GitHub branch protection** — `main` cannot take a direct push; merge needs a PR + your approval.
-8. **Grok Bot plugins** — Clearing can read/write Linear and read GitHub without you clicking around.
+2. **Open-PR GitHub Action** — `.github/workflows/open-pr-on-push.yml`. Every **push** of a human/IDE commit on a non-`main` branch opens a PR into `main` if one is not already open. Skips `cursor[bot]` and `cursor/fix-*` so it does not race the remediator. Does not merge. Local commits that never get pushed cannot open a GitHub PR.
+3. **Linear MCP** on those cloud agents — they can comment on tickets.
+4. **`autoCreatePR`** — remediator opens the GitHub PR.
+5. **Bugbot** — PR review automation + `.cursor/BUGBOT.md`.
+6. **Hooks** — cloud agents load `.cursor/hooks.json`. Any `git` command that tries to push, check out, or merge `main` is denied.
+7. **Cursor rule** `harbor-change-control.mdc` — same policy in the prompt layer.
+8. **GitHub branch protection** — `main` cannot take a direct push; merge needs a PR + your approval.
+9. **Grok Bot plugins** — Clearing can read/write Linear and read GitHub without you clicking around.
 
 There is **no** Linear webhook. The demo trigger is a terminal command so a missed webhook cannot kill a 20-minute live session.
 

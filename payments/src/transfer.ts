@@ -1,23 +1,36 @@
 import { randomUUID } from "node:crypto";
 import { recordTransfer } from "./audit.ts";
 import { assertTransferAmount } from "./limits.ts";
-import type { AuditRecord, TransferRequest, TransferResult } from "./types.ts";
+import type { AuditAccessRecord, AuditRecord, TransferRequest, TransferResult } from "./types.ts";
 
 const ledger: AuditRecord[] = [];
+const auditReads: AuditAccessRecord[] = [];
+const idempotencyCache = new Map<string, TransferResult>();
+
+function reject(reason: string, req: TransferRequest): TransferResult {
+  const result: TransferResult = { id: "", status: "rejected", reason };
+  // CONTROL GAP (practice 2): rejected attempts are not written to the audit log.
+  void req;
+  return result;
+}
 
 export function submitTransfer(req: TransferRequest): TransferResult {
   if (!req.fromAccount || !req.toAccount || !req.actor) {
-    return { id: "", status: "rejected", reason: "missing_fields" };
+    return reject("missing_fields", req);
   }
   if (req.fromAccount === req.toAccount) {
-    return { id: "", status: "rejected", reason: "same_account" };
+    return reject("same_account", req);
   }
 
   try {
     assertTransferAmount(req.amountCents);
   } catch {
-    return { id: "", status: "rejected", reason: "invalid_amount" };
+    return reject("invalid_amount", req);
   }
+
+  // CONTROL GAP (practice 3): idempotencyKey is ignored. Two identical keys
+  // create two transfers.
+  void idempotencyCache;
 
   const id = randomUUID();
   const record = recordTransfer({
@@ -32,6 +45,13 @@ export function submitTransfer(req: TransferRequest): TransferResult {
   return { id, status: "accepted" };
 }
 
-export function listAuditLog(): AuditRecord[] {
+export function listAuditLog(actor?: string): AuditRecord[] {
+  // CONTROL GAP (demo): PCI-DSS 10.2 also requires logging who READ the audit
+  // trail. actor is accepted and discarded.
+  void actor;
   return [...ledger];
+}
+
+export function listAuditReads(): AuditAccessRecord[] {
+  return [...auditReads];
 }

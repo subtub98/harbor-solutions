@@ -14,8 +14,9 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "GET" && req.url === "/audit") {
-    json(200, { records: listAuditLog() });
+  if (req.method === "GET" && req.url && req.url.startsWith("/audit")) {
+    const url = new URL(req.url, "http://localhost");
+    json(200, { records: listAuditLog(url.searchParams.get("actor") ?? undefined) });
     return;
   }
 

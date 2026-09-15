@@ -49,7 +49,7 @@ async function main() {
     issue.id,
     [
       `## Change control packet`,
-      `- Control: PCI-DSS 10.2 (ACH audit amount)`,
+      `- Control: ${issue.title}`,
       `- PR: ${prUrl}`,
       `- Feature branch: \`${branch}\``,
       `- Remediator: \`${remediator.agentId}\``,

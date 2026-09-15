@@ -8,10 +8,21 @@ const auditReads: AuditAccessRecord[] = [];
 const idempotencyCache = new Map<string, TransferResult>();
 
 function reject(reason: string, req: TransferRequest): TransferResult {
-  const result: TransferResult = { id: "", status: "rejected", reason };
-  // CONTROL GAP (practice 2): rejected attempts are not written to the audit log.
-  void req;
-  return result;
+  const id = randomUUID();
+  const record = {
+    ...recordTransfer({
+      id,
+      timestamp: new Date().toISOString(),
+      actor: req.actor,
+      fromAccount: req.fromAccount,
+      toAccount: req.toAccount,
+      amountCents: req.amountCents,
+    }),
+    status: "rejected" as const,
+    reason,
+  };
+  ledger.push(record);
+  return { id, status: "rejected", reason };
 }
 
 export function submitTransfer(req: TransferRequest): TransferResult {
